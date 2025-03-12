@@ -7,7 +7,7 @@ class GameState:
         self.players = players  
         self.community_cards = []  
         self.pot = 0  
-        self.current_betting_round = 0  # 0=Preflop, 1=Flop, 2=Turn, 3=River
+        self.current_betting_round = 0  # 0=Preflop, 1=Flop(3), 2=Turn(4), 3=River(5)
         self.dealer_position = 0  
     
     def add_to_pot(self, amount):
