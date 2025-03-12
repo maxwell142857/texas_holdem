@@ -11,13 +11,13 @@ class PokerGame:
     
     def start_game(self):
         self.game_state.reset_game_state()
-        self.deck = Deck()  
+        self.deck = Deck()
         self.deck.shuffle()
 
         for player in self.players:
             player.receive_cards(self.deck.draw(2))
-        
-        self.game_state.next_round()
+
+        # self.game_state.next_round()
     
     def play_round(self):
         for player in self.players:
@@ -37,6 +37,9 @@ class PokerGame:
             self.game_state.deal_community_cards(self.deck, 3)  # Flop
         elif self.game_state.current_betting_round in [1, 2]:
             self.game_state.deal_community_cards(self.deck, 1)  # Turn or River
+        
+        print(f"Moving to next phase: {self.game_state.ROUNDS[self.game_state.current_betting_round+1] if self.game_state.current_betting_round < 3 else 'SHOWDOWN'}")
+
         self.game_state.next_round()
     
     def determine_winner(self):
