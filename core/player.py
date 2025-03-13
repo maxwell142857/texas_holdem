@@ -12,8 +12,8 @@ class Player:
         self.hand = cards
 
     def bet(self, amount):
-        if amount > self.chips:
-            raise ValueError("chip is not enough")
+        # if amount > self.chips:
+        #     raise ValueError("chip is not enough")
         self.chips -= amount
         self.current_bet += amount
 

@@ -11,11 +11,11 @@ from core.player import Player
 class TestPokerGame(unittest.TestCase):
 
     def test_game_consistency(self):
-        """ 运行 1000 次游戏，并检查筹码总和是否始终为 2000 """
+        players = [Player(name=1, chips=1000), Player(name=2, chips=1000)]
+        game = PokerGame(players)
+        """ 运行 100 次游戏，并检查筹码总和是否始终为 2000 """
         with patch('sys.stdout', new=StringIO()):
             for _ in range(1000):
-                players = [Player(name=1, chips=1000), Player(name=2, chips=1000)]
-                game = PokerGame(players)
                 game.start_game()
 
                 while game.game_state.current_betting_round < 4:
@@ -26,7 +26,7 @@ class TestPokerGame(unittest.TestCase):
                 game.determine_winner()
 
                 total_chips = sum(player.chips for player in players)
-                self.assertEqual(total_chips, 2000, f"Total chips mismatch! Found: {total_chips}")
+                self.assertEqual(total_chips, 2000, f"Total chips mismatch! Found: {players[0].chips} and {players[1].chips}")
 
 if __name__ == "__main__":
     unittest.main()
