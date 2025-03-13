@@ -19,6 +19,9 @@ class PokerGame:
         self.game_state.reset_game_state()
         self.deck = Deck()
         self.deck.shuffle()
+        
+        self.players[0].reset_hand()
+        self.players[1].reset_hand()
 
         #新增 轮流交换庄家
         self.dealer = self.players[0] if self.players[1].is_dealer else self.players[1]

@@ -24,6 +24,6 @@ class Player:
         self.hand = []
         self.current_bet = 0
         self.is_active = True
-        
+
     def make_decision(self, game_state):
         return random.choice(["call", "raise", "fold"])
