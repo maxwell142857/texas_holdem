@@ -6,6 +6,7 @@ class Player:
         self.hand = []
         self.current_bet = 0
         self.is_active = True
+        self.is_dealer = False  # 新增Dealer庄家
 
     def receive_cards(self, cards):
         self.hand = cards

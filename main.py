@@ -10,11 +10,11 @@ def main():
     while game.game_state.current_betting_round < 4:
         print(f"=== current state: {game.game_state.ROUNDS[game.game_state.current_betting_round]} ===")
 
-        for player in players:
-            hand_str = ", ".join(str(card) for card in player.hand)
-            print(f"Player {player.name} card: {hand_str} (Chipsc {player.chips})")
-        community_cards_str = ", ".join(str(card) for card in game.game_state.community_cards)
-        print(f"Community Cards: {community_cards_str if community_cards_str else 'None'}")
+        # for player in players:
+        #     hand_str = ", ".join(str(card) for card in player.hand)
+        #     print(f"Player {player.name} card: {hand_str} (Chipsc {player.chips})")
+        # community_cards_str = ", ".join(str(card) for card in game.game_state.community_cards)
+        # print(f"Community Cards: {community_cards_str if community_cards_str else 'None'}")
 
         game.play_round()
 

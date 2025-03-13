@@ -6,7 +6,7 @@ class GameState:
     def __init__(self, players):
         self.players = players  
         self.community_cards = []  
-        self.pot = 0  
+        self.pot = 0
         self.current_betting_round = 0  # 0=Preflop, 1=Flop(3), 2=Turn(4), 3=River(5)
         self.dealer_position = 0  
     
