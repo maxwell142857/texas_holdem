@@ -3,10 +3,10 @@ from core.player import Player
 
 def main():
     players = [Player(name=1, chips=1000), Player(name=2, chips=1000)]
-    
-
     game = PokerGame(players)
-    for _ in range(100):
+
+    for _ in range(1):
+
         game.start_game()
         dealer = game.dealer
         print(f"Dealer this round: Player {dealer.name}")
