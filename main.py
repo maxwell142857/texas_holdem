@@ -1,49 +1,48 @@
 from core.poker_game import PokerGame
 from core.player import Player
+from collections import defaultdict
 
-def main():
-    players = [Player(name=1, chips=1000), Player(name=2, chips=1000)]
+from players.never_fold import NeverFold
+from players.rule_based import RuleBased
+
+def fight_to_the_last_chip(players):
     game = PokerGame(players)
-
-    for _ in range(1):
+    while True:
 
         game.start_game()
-        dealer = game.dealer
-        print(f"Dealer this round: Player {dealer.name}")
 
         while game.game_state.current_betting_round < 4:
-            print(f"=== current state: {game.game_state.ROUNDS[game.game_state.current_betting_round]} ===")
-
-            for player in players:
-                hand_str = ", ".join(str(card) for card in player.hand)
-                print(f"Player {player.name} card: {hand_str} (Chipsc {player.chips})")
-            community_cards_str = ", ".join(str(card) for card in game.game_state.community_cards)
-            print(f"Community Cards: {community_cards_str if community_cards_str else 'None'}")
-
             game.play_round()
-
             if game.game_state.current_betting_round < 4:
-                game.next_phase()
+                game.next_phase() 
     
         game.determine_winner()
-        winner = max(players, key=lambda p: p.chips)
-        loser = min(players, key=lambda p: p.chips)
-
-        for player in players:
-            print(f"Player {player.name}，chips：{player.chips}")
-
-    # print(f"winner is Player {max(players, key=lambda p: p.chips).name}，chips：{max(players, key=lambda p: p.chips).chips}")
-
-    # winner = max(players, key=lambda p: p.chips)
-    # loser = min(players, key=lambda p: p.chips)
-
-    # for player in players:
-    #     print(f"Player {player.name}，chips：{player.chips}")
-
-
-    # print(f"Winner is Player {winner.name}，chips：{winner.chips}")
-    # print(f"Loser is Player {loser.name}，chip：{loser.chips}")
-
+        print(f"{players[0].name}:{players[0].chips}    {players[1].name}:{players[1].chips}")
+        if players[0].chips < 0:
+            return players[1].name
+        elif players[1].chips < 0:
+            return players[0].name
+        
+def oneRound(players):
+    game = PokerGame(players)
+    game.start_game()
+    while game.game_state.current_betting_round < 4:
+        game.play_round()
+        if game.game_state.current_betting_round < 4:
+            game.next_phase() 
+    
+    return game.determine_winner()
+    
+def evaluate(round):
+    name2cnt = defaultdict(int)
+    for _ in range(round):
+        Alice = RuleBased(name='Alice', chips=1000)
+        Bob = NeverFold(name='Bob', chips=1000)
+        # name2cnt[fight_to_the_last_chip([Alice,Bob])] += 1
+        name2cnt[oneRound([Alice,Bob])] += 1
+    return name2cnt
 
 if __name__ == "__main__":
-    main()
+    
+    print(evaluate(10000))
+    

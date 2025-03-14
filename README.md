@@ -1,7 +1,23 @@
 # Texas Hold'em AI
-### TO DO
-1 修bug, 牌局是否正式结束？  
-2 加print，显示每个阶段牌局（玩家手牌，公共牌，玩家的决策，筹码池）  
-3 实现一个基于规则的player  
-4 让两个玩家玩100局，统计结果，而不是对战一次（谁先输完提前结束，或者打完100局看）  
-5 （可选）修改hand_evaluator,更精细  
+## 1 Players
++ defaut player: randomly choose action [raise,call,fold].   
++ never fold player: randomly choose action from [raise,call]. 
++ rule based player: decide based on situation.   
+
+## 2 How to change players
+In main.py,evaluate method,define two players like this:
++ Bob = Player(name='Bob', chips=1000)
++ Bob = NeverFold(name='Bob', chips=1000)
++ Alice = RuleBased(name='Alice', chips=1000)
+
+## 3 How to evaluate 
+In main.py, there are two ways to evaluate the players:
++ oneRound: The two players play only one round of the game, and the player with the higher chips at the end wins.
++ fight_to_the_last_chip: The two players start with a certain amount of initial chips and play multiple rounds until one player runs out of chips, ending the game.   
+
+To change the evaluation method, update the code in main.py, evaluate method,choose one:  
+```
+name2cnt[fight_to_the_last_chip([Alice,Bob])] += 1  
+name2cnt[oneRound([Alice,Bob])] += 1  
+```
+Warning: for oneRound, it is ok to set round as 10000; for fight_to_the_last_chip, 100 round is enough.
