@@ -7,8 +7,9 @@ from players.rule_based import RuleBased
 
 def fight_to_the_last_chip(players):
     game = PokerGame(players)
+    total = 0
     while True:
-
+        total += 1
         game.start_game()
 
         while game.game_state.current_betting_round < 4:
@@ -18,9 +19,12 @@ def fight_to_the_last_chip(players):
     
         game.determine_winner()
         print(f"{players[0].name}:{players[0].chips}    {players[1].name}:{players[1].chips}")
+
         if players[0].chips < 0:
+            print(f'total round is {total}')
             return players[1].name
         elif players[1].chips < 0:
+            print(f'total round is {total}')
             return players[0].name
         
 def oneRound(players):
@@ -36,13 +40,14 @@ def oneRound(players):
 def evaluate(round):
     name2cnt = defaultdict(int)
     for _ in range(round):
-        Alice = RuleBased(name='Alice', chips=1000)
-        Bob = NeverFold(name='Bob', chips=1000)
-        # name2cnt[fight_to_the_last_chip([Alice,Bob])] += 1
-        name2cnt[oneRound([Alice,Bob])] += 1
+        Alice = NeverFold(name='Alice', chips=5000)
+        Bob = RuleBased(name='Bob', chips=5000)
+        name2cnt[fight_to_the_last_chip([Alice,Bob])] += 1
+        # name2cnt[oneRound([Alice,Bob])] += 1
+        # name2cnt[oneRound([Bob,Alice])] += 1
     return name2cnt
 
 if __name__ == "__main__":
     
-    print(evaluate(10000))
+    print(evaluate(100))
     
