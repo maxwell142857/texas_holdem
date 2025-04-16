@@ -29,8 +29,8 @@ class PokerGame:
         bb.bet(self.BIG_BLIND)
         self.game_state.add_to_pot(self.SMALL_BLIND + self.BIG_BLIND)
 
-        print(f"Dealer this round: Player {sb.name}")
-        print(f'{sb.name}: {sb.chips},{bb.name}: {bb.chips},pot:{self.game_state.pot}')
+        # print(f"Dealer this round: Player {sb.name}")
+        # print(f'{sb.name}: {sb.chips},{bb.name}: {bb.chips},pot:{self.game_state.pot}')
 
         for player in self.players:
             player.receive_cards(self.deck.draw(2))
@@ -39,13 +39,13 @@ class PokerGame:
     
     def play_round(self):
 
-        print(f"=== current state: {self.game_state.ROUNDS[self.game_state.current_betting_round]} ===")
+        # print(f"=== current state: {self.game_state.ROUNDS[self.game_state.current_betting_round]} ===")
 
         for player in self.players:
             hand_str = ", ".join(str(card) for card in player.hand)
-            print(f"Player {player.name} card: {hand_str} (Chips {player.chips})")
+            # print(f"Player {player.name} card: {hand_str} (Chips {player.chips})")
         community_cards_str = ", ".join(str(card) for card in self.game_state.community_cards)
-        print(f"Community Cards: {community_cards_str if community_cards_str else 'None'}")
+        # print(f"Community Cards: {community_cards_str if community_cards_str else 'None'}")
         
         # 在Preflop阶段，应该是小盲先行动
         # 其他阶段是大盲先行动
@@ -62,7 +62,7 @@ class PokerGame:
             if player.is_active:
 
                 decision = player.make_decision(self.game_state)
-                print(f'{player.name} choose to {decision}')
+                # print(f'{player.name} choose to {decision}')
                 if decision == "fold":
                     player.fold()
                     break # 防止两人同时fold
@@ -74,21 +74,21 @@ class PokerGame:
                         diff = bets[1]-player.current_bet
                     self.game_state.add_to_pot(diff)
                     player.bet(diff)
-                    print(f'{player.name}\'s chip: {player.chips},current_bet :{player.current_bet}')
+                    # print(f'{player.name}\'s chip: {player.chips},current_bet :{player.current_bet}')
                     break # 这里应该分类讨论，如果是第一个call,那其实可以继续的；如果是对手raise后的call,则直接结束
                 elif decision == "raise":
                     self.game_state.add_to_pot(self.BIG_BLIND)
                     player.bet(self.BIG_BLIND)
-                    print(f'{player.name}\'s chip: {player.chips},current_bet :{player.current_bet}')
+                    # print(f'{player.name}\'s chip: {player.chips},current_bet :{player.current_bet}')
                     
                     # print(f'-------pot:{self.game_state.pot}-------')
-        print(f'pot:{self.game_state.pot}')
+        # print(f'pot:{self.game_state.pot}')
 
 
     def next_phase(self):
         active_players = [p for p in self.players if p.is_active]
         if len(active_players) == 1: 
-            print(f"Player{active_players[0].name} win, all other player fold!")
+            # print(f"Player{active_players[0].name} win, all other player fold!")
             self.game_state.current_betting_round = 4
             next_phase_name = "SHOWDOWN"
             return
@@ -102,14 +102,14 @@ class PokerGame:
             next_phase_name = self.game_state.ROUNDS[self.game_state.current_betting_round + 1]
         else:
             next_phase_name = "SHOWDOWN"
-        print(f"Moving to next phase: {next_phase_name}")        
+        # print(f"Moving to next phase: {next_phase_name}")        
 
         self.game_state.next_round()
     
     def determine_winner(self):
         active_players = [p for p in self.players if p.is_active]
         if len(active_players) == 1:
-            print(f"Player{active_players[0].name} win, all other player fold!")     
+            # print(f"Player{active_players[0].name} win, all other player fold!")     
             active_players[0].chips += self.game_state.pot
             return active_players[0].name
     

@@ -4,6 +4,7 @@ from collections import defaultdict
 
 from players.never_fold import NeverFold
 from players.rule_based import RuleBased
+from players.monteCarlo import MonteCarlo
 
 def fight_to_the_last_chip(players):
     game = PokerGame(players)
@@ -40,8 +41,8 @@ def oneRound(players):
 def evaluate(round):
     name2cnt = defaultdict(int)
     for _ in range(round):
-        Alice = NeverFold(name='Alice', chips=5000)
-        Bob = RuleBased(name='Bob', chips=5000)
+        Alice = RuleBased(name='Alice', chips=5000)
+        Bob = MonteCarlo(name='Bob', chips=5000)
         name2cnt[fight_to_the_last_chip([Alice,Bob])] += 1
         # name2cnt[oneRound([Alice,Bob])] += 1
         # name2cnt[oneRound([Bob,Alice])] += 1

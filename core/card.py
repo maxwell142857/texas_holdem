@@ -17,3 +17,12 @@ class Card:
         if not isinstance(other,Card):
             raise NotImplementedError('less than error')
         return self.RANKS.index(self.rank) < self.RANKS.index(other.rank)
+    
+    def __eq__(self, other):
+        return self.rank == other.rank and self.suit == other.suit
+
+    def __hash__(self):
+        return hash((self.rank, self.suit))
+
+    def __repr__(self):
+        return f"{self.rank}{self.suit}"
