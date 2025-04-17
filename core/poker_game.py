@@ -138,7 +138,7 @@ class PokerGame:
         9:"Straight Flush",
         10:"Royal Flush"
         } 
-        print(f'{best_player.name} wins with {type[best_hand_value]}')
+        # print(f'{best_player.name} wins with {type[best_hand_value]}')
         return best_player.name
     
     def reset_game(self):
