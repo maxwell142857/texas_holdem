@@ -48,9 +48,27 @@ class HandEvaluator:
         
         return HandEvaluator.HAND_RANKS["High Card"]
     
+    # @staticmethod
+    # def is_straight(sorted_ranks):
+    #     for i in range(len(sorted_ranks) - 4):
+    #         if sorted_ranks[i] - sorted_ranks[i + 4] == 4:
+    #             return True
+    #     return False
+
+
     @staticmethod
     def is_straight(sorted_ranks):
-        for i in range(len(sorted_ranks) - 4):
-            if sorted_ranks[i] - sorted_ranks[i + 4] == 4:
+        # 去重，防止重复牌误判为顺子
+        unique_ranks = sorted(set(sorted_ranks), reverse=True)
+
+        # 检查所有长度为 5 的连续窗口
+        for i in range(len(unique_ranks) - 4):
+            window = unique_ranks[i:i+5]
+            if window[0] - window[4] == 4 and len(window) == 5:
                 return True
+
+        # 特殊情况：A-2-3-4-5（A=12, 2=0, 3=1, 4=2, 5=3）
+        if set([12, 0, 1, 2, 3]).issubset(set(sorted_ranks)):
+            return True
+
         return False

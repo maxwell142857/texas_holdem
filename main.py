@@ -23,7 +23,7 @@ def fight_to_the_last_chip(players):
     
         winner = game.determine_winner()
         hand_win_counter[winner] += 1
-        print(f"{players[0].name}:{players[0].chips}    {players[1].name}:{players[1].chips}")
+        print(f"{players[0].name}:{players[0].chips}    {players[1].name}:{players[1].chips}   pot: {game.game_state.pot} ")
 
         if players[0].chips < 0:
             print(f'total round is {total}')
@@ -61,16 +61,17 @@ def evaluate(round):
 def evaluate1(rounds):
     name2cnt = defaultdict(int)
     for i in range(rounds):
-        Alice = RuleBased(name='Alice', chips=2000)
-        Bob = MCTSPlayer(name='Bob', chips=2000)
+        Alice = RuleBased(name='Alice', chips=1000)
+        Bob = MCTSPlayer(name='Bob', chips=1000)
         winner = fight_to_the_last_chip([Alice, Bob])
+        # winner = oneRound([Alice,Bob])
+        # name2cnt[winner] += 1
+        # winner = oneRound([Bob,Alice])
         name2cnt[winner] += 1
         print(f"Round {i+1} winner: {winner}")
     return name2cnt
-
 
 if __name__ == "__main__":
 
     print(evaluate1(1))
     
-

@@ -244,8 +244,13 @@ from players.rule_based import RuleBased
 from copy import deepcopy
 from core.poker_game import PokerGame
 from core.game_state import GameState
+from core.hand_comparator import HandComparator 
+import statistics
+import numpy as np
 
 class MCTSPlayer(Player):
+    fold_value = 5
+
     action_paths_2 = [
         ["fold"],
         ["call","fold"],
@@ -260,7 +265,8 @@ class MCTSPlayer(Player):
         ["call"],
         ["raise"]
     ]
-    def make_decision(self, game_state, simulations=500):
+
+    def make_decision(self, game_state, simulations=300):
         if game_state.current_betting_round <= 1:
             return "call"
         elif game_state.current_betting_round == 2:
@@ -270,21 +276,33 @@ class MCTSPlayer(Player):
         else:
             raise Exception("decision shouldn't reach here, current_betting_round > 3")
 
+        # print(f"self.hand: {self.hand}, community: {game_state.community_cards}")
+
         best_action = "fold"
-        best_avg_reward = float("-inf")
+        best_score = float("-inf")
 
         for path in action_paths:
-            total_reward = 0
-            for _ in range(simulations):
-                reward = self._simulate_first_action(path, game_state)
-                total_reward += reward
-            avg_reward = total_reward / simulations
+            reward_samples = [self._simulate_first_action(path, game_state) for _ in range(simulations)]
+            avg = sum(reward_samples) / simulations
+            q75 = np.percentile(reward_samples, 75)
 
-            if avg_reward > best_avg_reward:
-                best_avg_reward = avg_reward
+            try:
+                mode_reward = statistics.mode(reward_samples)
+            except statistics.StatisticsError:
+                mode_reward = statistics.median(reward_samples)
+
+            # score = (avg + mode_reward + q75) / 3
+            score = avg 
+            # print(f"path: {path} score: {score:.2f}")
+
+            if score >= best_score:
+                best_score = score
                 best_action = path[0]
 
         return best_action
+
+
+
 
     def _am_i_first(self, game_state):
         players = game_state.players
@@ -297,6 +315,7 @@ class MCTSPlayer(Player):
         
             
     def _simulate_first_action(self, path, game_state):
+
         from core.hand_evaluator import HandEvaluator
         players = game_state.players
 
@@ -382,41 +401,56 @@ class MCTSPlayer(Player):
                 if round_now == 2:
                     # state2
                     a1 = next(path_iter, "call")
-                    if act("me", a1) == "fold": return -pot
+                    if act("me", a1) == "fold": return self.fold_value
                     if act("oppo", simulate_oppo(oppo_hand, board, round_now)) == "fold": return pot
                     # state3
                     a2 = next(path_iter, "call")
-                    if act("me", a2) == "fold": return -pot
+                    if len(board) == 4:
+                        board.append(remain_deck.pop()) 
+                    if act("me", a2) == "fold": return self.fold_value
                     if act("oppo", simulate_oppo(oppo_hand, board, round_now)) == "fold": return pot
 
                 elif round_now == 3:
                     # state3
                     a1 = next(path_iter, "call")
-                    if act("me", a1) == "fold": return -pot
+                    if len(board) == 4:
+                        board.append(remain_deck.pop()) 
+                    if act("me", a1) == "fold": return self.fold_value
                     if act("oppo", simulate_oppo(oppo_hand, board, round_now)) == "fold": return pot
 
             else:
                 if round_now == 2:
                     a1 = next(path_iter, "call")
-                    if act("me", a1) == "fold": return -pot
+                    if act("me", a1) == "fold": return self.fold_value
                     # state3
+                    if len(board) == 4:
+                        board.append(remain_deck.pop()) 
                     if act("oppo", simulate_oppo(oppo_hand, board, round_now)) == "fold": return pot
                     a2 = next(path_iter, "call")
-                    if act("me", a2) == "fold": return -pot
+                    if act("me", a2) == "fold": return self.fold_value
 
                 elif round_now == 3:
+                    if len(board) == 4:
+                        board.append(remain_deck.pop()) 
                     a1 = next(path_iter, "call")
-                    if act("me", a1) == "fold": return -pot
+                    if act("me", a1) == "fold": return self.fold_value
 
-            # showdown
-            my_score = HandEvaluator.evaluate_hand(self.hand, board)
-            oppo_score = HandEvaluator.evaluate_hand(oppo_hand, board)
-            if my_score > oppo_score:
+
+            me = deepcopy(self)
+            me.hand = deepcopy(self.hand)
+
+            oppo = RuleBased("opponent", 1000)
+            oppo.hand = oppo_hand
+
+            winner = HandComparator.compare(me, oppo, board, prefer_first_if_tie=False)
+
+            if winner == me:
                 return pot
-            elif my_score < oppo_score:
+            elif winner == oppo:
                 return -pot
             else:
-                return 0
+                return pot/2 
+
 
         except StopIteration:
             print("StopIterationStopIterationStopIteration")

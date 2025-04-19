@@ -1,6 +1,7 @@
 from core.deck import Deck
 from core.game_state import GameState
 from core.hand_evaluator import HandEvaluator
+from core.hand_comparator import HandComparator  
 
 class PokerGame:
     SMALL_BLIND = 5
@@ -62,7 +63,9 @@ class PokerGame:
             if player.is_active:
 
                 decision = player.make_decision(self.game_state)
+
                 # print(f'{player.name} choose to {decision}')
+
                 if decision == "fold":
                     player.fold()
                     break # 防止两人同时fold
@@ -75,7 +78,7 @@ class PokerGame:
                     self.game_state.add_to_pot(diff)
                     player.bet(diff)
                     # print(f'{player.name}\'s chip: {player.chips},current_bet :{player.current_bet}')
-                    break # 这里应该分类讨论，如果是第一个call,那其实可以继续的；如果是对手raise后的call,则直接结束
+                    # 这里应该分类讨论，如果是第一个call,那其实可以继续的；如果是对手raise后的call,则直接结束
                 elif decision == "raise":
                     self.game_state.add_to_pot(self.BIG_BLIND)
                     player.bet(self.BIG_BLIND)
@@ -106,40 +109,102 @@ class PokerGame:
 
         self.game_state.next_round()
     
+    # def determine_winner(self):
+    #     active_players = [p for p in self.players if p.is_active]
+    #     if len(active_players) == 1:
+    #         # print(f"Player{active_players[0].name} win, all other player fold!")     
+    #         active_players[0].chips += self.game_state.pot
+    #         return active_players[0].name
+    
+    #     best_player = None
+    #     best_hand_value = -1
+
+    #     for player in self.players:
+    #         if player.is_active:
+    #             hand_value = HandEvaluator.evaluate_hand(player.hand, self.game_state.community_cards)
+    #             if hand_value > best_hand_value:
+    #                 best_hand_value = hand_value
+    #                 best_player = player
+        
+    #     if best_player:
+    #         best_player.chips += self.game_state.pot 
+
+    #     type = {
+    #     1:"High Card",
+    #     2:"One Pair",
+    #     3:"Two Pair",
+    #     4:"Three of a Kind",
+    #     5:"Straight",
+    #     6:"Flush",
+    #     7:"Full House",
+    #     8:"Four of a Kind",
+    #     9:"Straight Flush",
+    #     10:"Royal Flush"
+    #     } 
+    #     # print(f'{best_player.name} wins with {type[best_hand_value]}')
+    #     return best_player.name
+    
     def determine_winner(self):
         active_players = [p for p in self.players if p.is_active]
         if len(active_players) == 1:
-            # print(f"Player{active_players[0].name} win, all other player fold!")     
+            # print(f"Player {active_players[0].name} wins, all other players folded!")
             active_players[0].chips += self.game_state.pot
             return active_players[0].name
-    
+
         best_player = None
         best_hand_value = -1
 
-        for player in self.players:
-            if player.is_active:
-                hand_value = HandEvaluator.evaluate_hand(player.hand, self.game_state.community_cards)
-                if hand_value > best_hand_value:
-                    best_hand_value = hand_value
-                    best_player = player
-        
-        if best_player:
-            best_player.chips += self.game_state.pot 
-
         type = {
-        1:"High Card",
-        2:"One Pair",
-        3:"Two Pair",
-        4:"Three of a Kind",
-        5:"Straight",
-        6:"Flush",
-        7:"Full House",
-        8:"Four of a Kind",
-        9:"Straight Flush",
-        10:"Royal Flush"
-        } 
-        # print(f'{best_player.name} wins with {type[best_hand_value]}')
-        return best_player.name
-    
+            1: "High Card",
+            2: "One Pair",
+            3: "Two Pair",
+            4: "Three of a Kind",
+            5: "Straight",
+            6: "Flush",
+            7: "Full House",
+            8: "Four of a Kind",
+            9: "Straight Flush",
+            10: "Royal Flush"
+        }
+
+        # print("\n=== SHOWDOWN ===")
+        community_str = ", ".join(str(card) for card in self.game_state.community_cards)
+        # print(f"Community Cards: {community_str}")
+
+        # for player in self.players:
+        #     if player.is_active:
+        #         hand_str = ", ".join(str(card) for card in player.hand)
+        #         hand_value = HandEvaluator.evaluate_hand(player.hand, self.game_state.community_cards)
+        #         hand_type = type.get(hand_value, "Unknown")
+
+        #         if hand_value > best_hand_value:
+        #             best_hand_value = hand_value
+        #             best_player = player
+        #             best_hand_type = hand_type  
+
+        # if best_player:
+        #     best_player.chips += self.game_state.pot
+
+        # return best_player.name
+
+        winner = HandComparator.compare(
+            self.players[0], 
+            self.players[1], 
+            self.game_state.community_cards, 
+            prefer_first_if_tie=False,   # 如果你要模拟中先手赢
+            verbose=False                # 如果你要打印牌面与牌型
+        )
+
+        if winner:
+            winner.chips += self.game_state.pot
+            return winner.name
+        else:
+            # 如果不偏向先手，且真的平局
+            print(f"{self.players[0].name}: {self.players[0].hand} | {self.players[1].name}: {self.players[1].hand} | Board: {self.game_state.community_cards}")
+            split = self.game_state.pot // 2
+            for p in self.players:
+                p.chips += split
+            return "Tie"
+
     def reset_game(self):
         self.start_game()
